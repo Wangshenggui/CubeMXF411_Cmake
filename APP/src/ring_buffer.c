@@ -4,7 +4,6 @@
  *  Created on: Jun 22, 2025
  *      Author: 10534
  */
-
 #include "ring_buffer.h"
 
 void RingBuffer_Init(RingBuffer *rb) {

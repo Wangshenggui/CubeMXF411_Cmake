@@ -126,7 +126,12 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
     // HAL_Delay(400);
-    // HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_13);
+    static uint16_t i=0;
+    if(i++==60000)
+    {
+      i=0;
+      HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_13);
+    }
 
     if(RingBuffer_IsEmpty(&gRingBuffer) != true)
     {

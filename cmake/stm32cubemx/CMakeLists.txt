@@ -22,7 +22,6 @@ target_include_directories(stm32cubemx INTERFACE
     ../../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc
     ../../Drivers/CMSIS/Device/ST/STM32F4xx/Include
     ../../Drivers/CMSIS/Include
-    ../../APP/inc
 )
 
 target_sources(stm32cubemx INTERFACE
@@ -61,7 +60,6 @@ target_sources(stm32cubemx INTERFACE
     ../../Core/Src/sysmem.c
     ../../Core/Src/syscalls.c
     ../../startup_stm32f411xe.s
-    ../../APP/src/ring_buffer.c
 )
 
 target_link_directories(stm32cubemx INTERFACE
