@@ -1,0 +1,30 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "type": "cortex-debug",
+            "request": "launch",
+            "name": "Debug (OpenOCD)",
+            "servertype": "openocd",
+            "cwd": "${workspaceRoot}",
+            "executable": "build/Debug/F411_Cmake.elf",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f4x.cfg"
+            ],
+            "rtos": "FreeRTOS",                    // 指定RTOS类型
+            "rtosVerbose": true,                    // 启用详细输出
+            "liveWatch": {                          
+                "enabled": true,
+                "samplesPerSecond": 10
+            },
+            "postLaunchCommands": [                  // 只保留这一个
+                "monitor reset halt",                // reset和halt合并
+                "load",
+                // "break main",
+                "continue"
+            ]
+        }
+    ]
+}
