@@ -13,6 +13,10 @@
                 "interface/stlink.cfg",
                 "target/stm32f4x.cfg"
             ],
+            "openOCDLaunchCommands": [
+                "transport select swd",
+                "adapter speed 4000"
+            ],
             "rtos": "FreeRTOS",                    // 指定RTOS类型
             "rtosVerbose": true,                    // 启用详细输出
             "liveWatch": {                          

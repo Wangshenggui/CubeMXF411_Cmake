@@ -22,7 +22,7 @@
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN INCLUDE */
-#include "usart.h"
+ #include "led_fsm.h"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -31,7 +31,7 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-uint8_t gUSBXferCpltFlag = 1;
+
 /* USER CODE END PV */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
@@ -261,12 +261,16 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
-  // 先等待DMA发送完成
-  // USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
-  // USBD_CDC_ReceivePacket(&hUsbDeviceFS);
-  
-  HAL_UART_Transmit_DMA(&huart1,Buf,*Len);
-  
+  USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
+  USBD_CDC_ReceivePacket(&hUsbDeviceFS);
+
+  if(Buf[0] == '1')
+    LED_FSM_SetBlinkEvent(&led1_fsm_struct,500,1000);
+  if(Buf[0] == '2')
+    LED_FSM_SetBlinkEvent(&led1_fsm_struct,1000,500);
+
+  if(Buf[0] == '0')
+    LED_FSM_SetOFFEvent(&led1_fsm_struct);
   return (USBD_OK);
   /* USER CODE END 6 */
 }
@@ -315,7 +319,6 @@ static int8_t CDC_TransmitCplt_FS(uint8_t *Buf, uint32_t *Len, uint8_t epnum)
   UNUSED(Buf);
   UNUSED(Len);
   UNUSED(epnum);
-  gUSBXferCpltFlag = 1;
   /* USER CODE END 13 */
   return result;
 }

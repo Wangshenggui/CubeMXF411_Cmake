@@ -18,15 +18,15 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "dma.h"
-#include "usart.h"
 #include "usb_device.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "led.h"
+#include "led_fsm.h"
+#include "system.h"
 #include "usbd_cdc_if.h"
-#include "ring_buffer.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,25 +58,7 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-RingBuffer gRingBuffer;
-uint8_t gRxDataByte = 0;
-extern uint8_t gUSBXferCpltFlag;
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    if (huart->Instance == USART1)
-    {
-    	RingBuffer_Put(&gRingBuffer, gRxDataByte);
-      HAL_UART_Receive_IT(&huart1, &gRxDataByte, 1);
-    }
-}
-
-extern USBD_HandleTypeDef hUsbDeviceFS;
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
-{
-  // 串口发送完成后再启动USB包
-  USBD_CDC_ReceivePacket(&hUsbDeviceFS);
-}
 /* USER CODE END 0 */
 
 /**
@@ -108,14 +90,14 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
   MX_USB_DEVICE_Init();
-  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  HAL_UART_Receive_IT(&huart1, &gRxDataByte, 1);
-  RingBuffer_Init(&gRingBuffer);
-
-  uint8_t buf[2048];
+  // 初始化LED状态机
+  LED_SFM_Init(&led1_fsm_struct, &led1_struct);
+  LED_SFM_Init(&led2_fsm_struct, &led2_struct);
+  // 初始设置500ms闪烁
+  LED_FSM_SetBlinkEvent(&led1_fsm_struct,500,500);
+  LED_FSM_SetBlinkEvent(&led2_fsm_struct,500,500);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -125,27 +107,18 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    // HAL_Delay(400);
-    static uint16_t i=0;
-    if(i++==60000)
-    {
-      i=0;
-      HAL_GPIO_TogglePin(GPIOC,GPIO_PIN_13);
-    }
+    // 获取系统计数器
+    uint32_t tick = HAL_GetTick();
 
-    if(RingBuffer_IsEmpty(&gRingBuffer) != true)
-    {
-      if(gUSBXferCpltFlag == 1)
-      {
-        uint16_t size = gRingBuffer.size;
-        gUSBXferCpltFlag = 0;
-        for(int i=0; i<size; i++)
-        {
-          RingBuffer_Get(&gRingBuffer, &buf[i]);
-        }
-        CDC_Transmit_FS(buf, size);
-      }
-    }
+    // 运行LED状态机
+    LED_FSM_Run(&led1_fsm_struct, tick);
+    LED_FSM_Run(&led2_fsm_struct, tick);
+
+    static uint32_t last_tick=0;
+    uint8_t buf[100];
+    int len = sprintf((char*)buf,"%ld\r\n",tick - last_tick);
+    CDC_Transmit_FS(buf,len);
+    last_tick = tick;
   }
   /* USER CODE END 3 */
 }
