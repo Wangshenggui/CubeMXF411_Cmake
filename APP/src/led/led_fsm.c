@@ -2,35 +2,21 @@
 #include "system.h"
 
 
-// 定义led1状态机结构体
-LED_FSM_Structure led1_fsm_struct = 
-{
-    .event = LED_FSM_EVENT_OFF,
-    .state = LED_FSM_STATE_OFF,
-    .blink_on_tick = 0,
-    .blink_off_tick = 0,
-    .blink_on_time = 0,             // 闪烁亮时间
-    .blink_off_time = 0,            // 闪烁灭时间
-    .led_struct = &led1_struct,
-};
-// 定义led2状态机结构体
-LED_FSM_Structure led2_fsm_struct = 
-{
-    .event = LED_FSM_EVENT_OFF,
-    .state = LED_FSM_STATE_OFF,
-    .blink_on_tick = 0,
-    .blink_off_tick = 0,
-    .blink_on_time = 0,             // 闪烁亮时间
-    .blink_off_time = 0,            // 闪烁灭时间
-    .led_struct = &led2_struct,
-};
-
 /*LED状态机初始化*/
-void LED_SFM_Init(LED_FSM_Structure* fsm, LED_Structure* led_struct)
+LED_FSM_Structure LED_SFM_Init(LED_Structure* led_struct)
 {
-    (void)fsm;
-    (void)led_struct;
-    // 定义结构体时已经初始化，除非有什么特殊处理
+    LED_FSM_Structure fsm;
+
+    fsm.event = LED_FSM_EVENT_OFF;
+    fsm.state = LED_FSM_STATE_OFF;
+    fsm.blink_on_tick = 0;
+    fsm.blink_off_tick = 0;
+    fsm.blink_on_time = 0;
+    fsm.blink_off_time = 0;
+    // 操作led指针
+    fsm.led_struct = led_struct;
+
+    return fsm;
 }
 
 /*设置led闪烁*/

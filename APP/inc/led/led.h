@@ -21,8 +21,8 @@ typedef enum
 /*LED状态枚举*/
 typedef enum
 {
-    LED_STATE_OFF = GPIO_PIN_RESET,
-    LED_STATE_ON = GPIO_PIN_SET
+    LED_STATE_OFF,
+    LED_STATE_ON
 } LED_STATE;
 
 /*LED结构体*/
@@ -32,9 +32,9 @@ typedef struct
     uint16_t GPIO_Pin;          // LED引脚
     LED_POLARITY polarity;      // LED极性
 } LED_Structure;
-extern LED_Structure led1_struct;
-extern LED_Structure led2_struct;
 
+/*初始化LED*/
+LED_Structure LED_Init(GPIO_TypeDef* gpio, uint16_t pin, LED_POLARITY polarity);
 /*设置LED状态*/
 void LED_SetState(LED_Structure* led,LED_STATE state);
 /*LED闪烁*/

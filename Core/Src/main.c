@@ -27,6 +27,8 @@
 #include "led_fsm.h"
 #include "system.h"
 #include "usbd_cdc_if.h"
+#include "key.h"
+#include "key_fsm.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,7 +60,32 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+// 定义LED结构体
+LED_Structure led1;
+LED_Structure ledx;
+// 定义LED状态机结构体
+LED_FSM_Structure led1_fsm;
+LED_FSM_Structure ledx_fsm;
+// 定义按键结构体
+Key_Structure key;
+Key_Structure keyx;
+// 定义按键状态机结构体
+KEY_FSM_Structure key_fsm;
+KEY_FSM_Structure keyx_fsm;
 
+
+void KeyClickTest()
+{
+  uint8_t buf[100];
+  int len = sprintf(buf,"key\r\n");
+  CDC_Transmit_FS(buf,len);
+}
+void KeyxClickTest()
+{
+  uint8_t buf[100];
+  int len = sprintf(buf,"keyx\r\n");
+  CDC_Transmit_FS(buf,len);
+}
 /* USER CODE END 0 */
 
 /**
@@ -92,12 +119,22 @@ int main(void)
   MX_GPIO_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
+  // 初始化LED
+  led1 = LED_Init(led_GPIO_Port,  led_Pin,  LED_POLARITY_LOW);
+  ledx = LED_Init(ledx_GPIO_Port, ledx_Pin, LED_POLARITY_LOW);
   // 初始化LED状态机
-  LED_SFM_Init(&led1_fsm_struct, &led1_struct);
-  LED_SFM_Init(&led2_fsm_struct, &led2_struct);
+  led1_fsm = LED_SFM_Init(&led1);
+  ledx_fsm = LED_SFM_Init(&ledx);
   // 初始设置500ms闪烁
-  LED_FSM_SetBlinkEvent(&led1_fsm_struct,500,500);
-  LED_FSM_SetBlinkEvent(&led2_fsm_struct,500,500);
+  LED_FSM_SetBlinkEvent(&led1_fsm,500,500);
+  LED_FSM_SetBlinkEvent(&ledx_fsm,500,500);
+
+  // 初始化KEY
+  key  = Key_Init(key_GPIO_Port,  key_Pin,  KEY_POLARITY_LOW);
+  keyx = Key_Init(keyx_GPIO_Port, keyx_Pin, KEY_POLARITY_LOW);
+  // 初始化按键状态机
+  key_fsm  = KEY_SFM_Init(&key,   KeyClickTest);
+  keyx_fsm = KEY_SFM_Init(&keyx,  KeyxClickTest);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -110,15 +147,12 @@ int main(void)
     // 获取系统计数器
     uint32_t tick = HAL_GetTick();
 
-    // 运行LED状态机
-    LED_FSM_Run(&led1_fsm_struct, tick);
-    LED_FSM_Run(&led2_fsm_struct, tick);
+    KEY_FSM_Run(&key_fsm,tick);
+    KEY_FSM_Run(&keyx_fsm,tick);
 
-    static uint32_t last_tick=0;
-    uint8_t buf[100];
-    int len = sprintf((char*)buf,"%ld\r\n",tick - last_tick);
-    CDC_Transmit_FS(buf,len);
-    last_tick = tick;
+    // 运行LED状态机
+    LED_FSM_Run(&led1_fsm, tick);
+    LED_FSM_Run(&ledx_fsm, tick);
   }
   /* USER CODE END 3 */
 }

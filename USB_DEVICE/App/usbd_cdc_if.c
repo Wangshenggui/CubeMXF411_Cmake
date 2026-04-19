@@ -22,7 +22,7 @@
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN INCLUDE */
- #include "led_fsm.h"
+
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -263,14 +263,6 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   /* USER CODE BEGIN 6 */
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
-
-  if(Buf[0] == '1')
-    LED_FSM_SetBlinkEvent(&led1_fsm_struct,500,1000);
-  if(Buf[0] == '2')
-    LED_FSM_SetBlinkEvent(&led1_fsm_struct,1000,500);
-
-  if(Buf[0] == '0')
-    LED_FSM_SetOFFEvent(&led1_fsm_struct);
   return (USBD_OK);
   /* USER CODE END 6 */
 }

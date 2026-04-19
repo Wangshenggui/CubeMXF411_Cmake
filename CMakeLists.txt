@@ -50,6 +50,8 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
     ${CMAKE_CURRENT_SOURCE_DIR}/APP/src/led/led.c
     ${CMAKE_CURRENT_SOURCE_DIR}/APP/src/led/led_fsm.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/APP/src/key/key.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/APP/src/key/key_fsm.c
 
     ${CMAKE_CURRENT_SOURCE_DIR}/SYSTEM/src/system.c
 )
@@ -59,6 +61,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
     ${CMAKE_CURRENT_SOURCE_DIR}/APP/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/APP/inc/led
+    ${CMAKE_CURRENT_SOURCE_DIR}/APP/inc/key
 
     ${CMAKE_CURRENT_SOURCE_DIR}/SYSTEM/inc
 )

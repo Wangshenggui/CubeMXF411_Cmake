@@ -1,20 +1,17 @@
 #include "led.h"
 
-// 定义LED1结构体
-LED_Structure led1_struct = 
-{
-    led_blue_GPIO_Port,              // LED端口
-    led_blue_Pin,                    // LED引脚
-    LED_POLARITY_LOW           // 低电平点亮
-};
 
-// 定义LED2结构体
-LED_Structure led2_struct = 
+/*初始化LED*/
+LED_Structure LED_Init(GPIO_TypeDef* gpio, uint16_t pin, LED_POLARITY polarity)
 {
-    led2_GPIO_Port,              // LED端口
-    led2_Pin,                    // LED引脚
-    LED_POLARITY_LOW           // 低电平点亮
-};
+    LED_Structure led;
+
+    led.GPIOx = gpio;
+    led.GPIO_Pin = pin;
+    led.polarity = polarity;
+
+    return led;
+}
 
 /*设置LED状态*/
 void LED_SetState(LED_Structure* led, LED_STATE state)
