@@ -86,6 +86,19 @@ void KeyxClickTest()
   int len = sprintf(buf,"keyx\r\n");
   CDC_Transmit_FS(buf,len);
 }
+
+void KeyDoubleClickTest()
+{
+  uint8_t buf[100];
+  int len = sprintf(buf,"key double\r\n");
+  CDC_Transmit_FS(buf,len);
+}
+void KeyxDoubleClickTest()
+{
+  uint8_t buf[100];
+  int len = sprintf(buf,"keyx double\r\n");
+  CDC_Transmit_FS(buf,len);
+}
 /* USER CODE END 0 */
 
 /**
@@ -123,8 +136,8 @@ int main(void)
   led1 = LED_Init(led_GPIO_Port,  led_Pin,  LED_POLARITY_LOW);
   ledx = LED_Init(ledx_GPIO_Port, ledx_Pin, LED_POLARITY_LOW);
   // 初始化LED状态机
-  led1_fsm = LED_SFM_Init(&led1);
-  ledx_fsm = LED_SFM_Init(&ledx);
+  led1_fsm = LED_FSM_Init(&led1);
+  ledx_fsm = LED_FSM_Init(&ledx);
   // 初始设置500ms闪烁
   LED_FSM_SetBlinkEvent(&led1_fsm,500,500);
   LED_FSM_SetBlinkEvent(&ledx_fsm,500,500);
@@ -133,8 +146,8 @@ int main(void)
   key  = Key_Init(key_GPIO_Port,  key_Pin,  KEY_POLARITY_LOW);
   keyx = Key_Init(keyx_GPIO_Port, keyx_Pin, KEY_POLARITY_LOW);
   // 初始化按键状态机
-  key_fsm  = KEY_SFM_Init(&key,   KeyClickTest);
-  keyx_fsm = KEY_SFM_Init(&keyx,  KeyxClickTest);
+  key_fsm  = KEY_SFM_Init(&key,   KeyClickTest,  KeyDoubleClickTest);
+  keyx_fsm = KEY_SFM_Init(&keyx,  KeyxClickTest, KeyxDoubleClickTest);
   /* USER CODE END 2 */
 
   /* Infinite loop */

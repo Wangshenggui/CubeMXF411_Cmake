@@ -3,7 +3,7 @@
 
 
 /*LED状态机初始化*/
-LED_FSM_Structure LED_SFM_Init(LED_Structure* led_struct)
+LED_FSM_Structure LED_FSM_Init(LED_Structure* led_struct)
 {
     LED_FSM_Structure fsm;
 

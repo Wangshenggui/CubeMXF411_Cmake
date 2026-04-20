@@ -5,6 +5,8 @@
 #include "key.h"
 #include "system.h"
 
+#define DEBOUNCE_TIME 10            // 消抖时间(ms)
+#define DOUBLE_CLICK_TIMEOUT 350    // 双击超时(ms)
 
 /*KEY FSM状态枚举*/
 typedef enum
@@ -14,11 +16,15 @@ typedef enum
     KEY_FSM_STATE_RELEASE_DEBOUNCE,     // 松开消抖
     KEY_FSM_STATE_PRESS,                // 按下
     KEY_FSM_STATE_PRESS_DEBOUNCE,       // 按下消抖
+    KEY_FSM_STATE_WAIT_DOUBLE_CLICK,    // 等待双击和单击超时检测
+    KEY_FSM_STATE_DOUBLE_CLICK,         // 双击
     KEY_FSM_STATE_COUNT
 } KEY_FSM_STATE;
 
 /*定义点击回调函数类型*/
 typedef void (*ClickHandle_t)(void);
+/*定义双击回调函数类型*/
+typedef void (*DoubleClickHandle_t)(void);
 /*KEY FSM结构体*/
 typedef struct
 {
@@ -26,11 +32,17 @@ typedef struct
     uint32_t last_tick;                         // 上次记录时间
     Key_Structure* key;                         // 操作对象
     ClickHandle_t click_handle;                 // 按键单击回调函数
+    uint8_t press_count;                        // 按下次数（用来检测双击）
+    uint32_t double_click_start_tick;           // 双击开始计时
+    DoubleClickHandle_t double_click_handle;    // 双击回到函数
     KEY_STATE (*get_state)(Key_Structure*);     // 获取状态函数
 } KEY_FSM_Structure;
 
 /*按键状态机初始化*/
-KEY_FSM_Structure KEY_SFM_Init(Key_Structure* key, ClickHandle_t click_handle);
+KEY_FSM_Structure KEY_SFM_Init(
+    Key_Structure* key, 
+    ClickHandle_t click_handle,
+    DoubleClickHandle_t double_click_handle);
 /*按键状态机轮询*/
 void KEY_FSM_Run(KEY_FSM_Structure* fsm, uint32_t tick);
 

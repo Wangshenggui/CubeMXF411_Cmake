@@ -35,7 +35,7 @@ typedef struct
 } LED_FSM_Structure;
 
 /*LED状态机初始化*/
-LED_FSM_Structure LED_SFM_Init(LED_Structure* led_struct);
+LED_FSM_Structure LED_FSM_Init(LED_Structure* led_struct);
 /*LED状态机运行处理函数*/
 void LED_FSM_Run(LED_FSM_Structure* fsm, uint32_t tick);
 /*设置led闪烁*/
