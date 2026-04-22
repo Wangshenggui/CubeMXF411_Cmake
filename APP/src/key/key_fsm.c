@@ -3,9 +3,15 @@
 /*按键状态机初始化*/
 KEY_FSM_Structure KEY_FSM_Init(
     Key_Structure* key, 
-    ClickHandle_t click_handle,
-    DoubleClickHandle_t double_click_handle,
-    LongPressHandle_t long_press_handle)
+    ClickHandle_t click_handle
+#ifdef DOUBLE_CLICK_ENABLE
+    ,DoubleClickHandle_t double_click_handle
+#endif
+
+#ifdef LONG_PRESS_ENABLE
+    ,LongPressHandle_t long_press_handle
+#endif
+)
 {
     KEY_FSM_Structure fsm;
 
@@ -15,14 +21,18 @@ KEY_FSM_Structure KEY_FSM_Init(
     fsm.key = key;                      // 指向操作对象
     fsm.get_state = Key_GetState;       // 指向获取状态函数
 
+#ifdef DOUBLE_CLICK_ENABLE
     // 双击附加
     fsm.press_count = 0;
     fsm.double_click_start_tick = 0;
     fsm.double_click_handle = double_click_handle;
+#endif
 
+#ifdef LONG_PRESS_ENABLE
     // 长按附加
     fsm.press_hold_start_tick = 0;
     fsm.long_press_handle = long_press_handle;
+#endif
 
     return fsm;
 }
@@ -66,9 +76,18 @@ void KEY_FSM_Run(KEY_FSM_Structure* fsm, uint32_t tick)
         // 按下
         case(KEY_FSM_STATE_PRESS):
         {
+#ifdef LONG_PRESS_ENABLE
             fsm->press_hold_start_tick = tick;   // 记录按下时的时间
             // 切换到按下检测
             fsm->state = KEY_FSM_STATE_PRESS_HOLD;
+#else
+            // 等待松开
+            if(fsm->get_state(fsm->key) == KEY_STATE_Release)
+            {
+                fsm->last_tick = tick;                          // 记录松开时间
+                fsm->state = KEY_FSM_STATE_RELEASE_DEBOUNCE;    // 松开消抖
+            }
+#endif
         }
         break;
 
@@ -94,6 +113,7 @@ void KEY_FSM_Run(KEY_FSM_Structure* fsm, uint32_t tick)
         // 松开
         case(KEY_FSM_STATE_RELEASE):
         {
+#ifdef DOUBLE_CLICK_ENABLE
             fsm->press_count++;         // 点击次数
             if(fsm->press_count == 1)   // 第一次点击
             {
@@ -104,9 +124,14 @@ void KEY_FSM_Run(KEY_FSM_Structure* fsm, uint32_t tick)
             {
                 fsm->state = KEY_FSM_STATE_DOUBLE_CLICK;    // 双击触发
             }
+#else
+            fsm->click_handle();
+            fsm->state = KEY_FSM_STATE_IDLE;    // 回到空闲
+#endif
         }
         break;
 
+#ifdef DOUBLE_CLICK_ENABLE
         // 等待双击
         case(KEY_FSM_STATE_WAIT_DOUBLE_CLICK):
         {
@@ -138,13 +163,16 @@ void KEY_FSM_Run(KEY_FSM_Structure* fsm, uint32_t tick)
             fsm->state = KEY_FSM_STATE_IDLE;    // 回到空闲
         }
         break;
+#endif
 
+#ifdef LONG_PRESS_ENABLE
         // 按住长按检测
         case(KEY_FSM_STATE_PRESS_HOLD):
         {
             // 等待松开
             if(fsm->get_state(fsm->key) == KEY_STATE_Release)
             {
+#ifdef DOUBLE_CLICK_ENABLE
                 // 长按中途松开，且超过双击检测区间
                 if(get_tick_diff(tick, fsm->press_hold_start_tick) > DOUBLE_CLICK_TIMEOUT)
                 {
@@ -155,6 +183,10 @@ void KEY_FSM_Run(KEY_FSM_Structure* fsm, uint32_t tick)
                     fsm->last_tick = tick;                          // 记录松开时间
                     fsm->state = KEY_FSM_STATE_RELEASE_DEBOUNCE;    // 松开消抖
                 }
+#else
+                fsm->last_tick = tick;                          // 记录松开时间
+                fsm->state = KEY_FSM_STATE_RELEASE_DEBOUNCE;    // 松开消抖
+#endif
             }
             // 超时
             else if(get_tick_diff(tick, fsm->press_hold_start_tick) >= LONG_PRESS_TIME)
@@ -178,11 +210,14 @@ void KEY_FSM_Run(KEY_FSM_Structure* fsm, uint32_t tick)
         {
             if(fsm->get_state(fsm->key) == KEY_STATE_Release)
             {
+#ifdef DOUBLE_CLICK_ENABLE
                 fsm->press_count = 0;
+#endif
                 fsm->state = KEY_FSM_STATE_IDLE;
             }
         }
         break;
+#endif
     }
 }
 

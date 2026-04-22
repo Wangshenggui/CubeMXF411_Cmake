@@ -159,8 +159,23 @@ int main(void)
   key  = Key_Init(key_GPIO_Port,  key_Pin,  KEY_POLARITY_LOW);
   keyx = Key_Init(keyx_GPIO_Port, keyx_Pin, KEY_POLARITY_LOW);
   // 初始化按键状态机
-  key_fsm  = KEY_FSM_Init(&key,   KeyClickTest,  KeyDoubleClickTest , KeyPressLongTest);
-  keyx_fsm = KEY_FSM_Init(&keyx,  KeyxClickTest, KeyxDoubleClickTest, KeyxPressLongTest);
+  key_fsm  = KEY_FSM_Init(&key,   KeyClickTest
+#ifdef DOUBLE_CLICK_ENABLE
+    ,KeyDoubleClickTest
+#endif
+#ifdef LONG_PRESS_ENABLE
+    ,KeyPressLongTest
+#endif
+  );
+
+  keyx_fsm  = KEY_FSM_Init(&keyx,   KeyxClickTest
+#ifdef DOUBLE_CLICK_ENABLE
+    ,KeyxDoubleClickTest
+#endif
+#ifdef LONG_PRESS_ENABLE
+    ,KeyxPressLongTest
+#endif
+  );
   /* USER CODE END 2 */
 
   /* Infinite loop */
