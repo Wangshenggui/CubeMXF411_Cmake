@@ -99,6 +99,19 @@ void KeyxDoubleClickTest()
   int len = sprintf(buf,"keyx double\r\n");
   CDC_Transmit_FS(buf,len);
 }
+
+void KeyPressLongTest()
+{
+  uint8_t buf[100];
+  int len = sprintf(buf,"key long\r\n");
+  CDC_Transmit_FS(buf,len);
+}
+void KeyxPressLongTest()
+{
+  uint8_t buf[100];
+  int len = sprintf(buf,"keyx long\r\n");
+  CDC_Transmit_FS(buf,len);
+}
 /* USER CODE END 0 */
 
 /**
@@ -146,8 +159,8 @@ int main(void)
   key  = Key_Init(key_GPIO_Port,  key_Pin,  KEY_POLARITY_LOW);
   keyx = Key_Init(keyx_GPIO_Port, keyx_Pin, KEY_POLARITY_LOW);
   // 初始化按键状态机
-  key_fsm  = KEY_SFM_Init(&key,   KeyClickTest,  KeyDoubleClickTest);
-  keyx_fsm = KEY_SFM_Init(&keyx,  KeyxClickTest, KeyxDoubleClickTest);
+  key_fsm  = KEY_FSM_Init(&key,   KeyClickTest,  KeyDoubleClickTest , KeyPressLongTest);
+  keyx_fsm = KEY_FSM_Init(&keyx,  KeyxClickTest, KeyxDoubleClickTest, KeyxPressLongTest);
   /* USER CODE END 2 */
 
   /* Infinite loop */

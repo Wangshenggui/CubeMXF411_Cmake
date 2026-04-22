@@ -1,10 +1,11 @@
 #include "key_fsm.h"
 
 /*按键状态机初始化*/
-KEY_FSM_Structure KEY_SFM_Init(
+KEY_FSM_Structure KEY_FSM_Init(
     Key_Structure* key, 
     ClickHandle_t click_handle,
-    DoubleClickHandle_t double_click_handle)
+    DoubleClickHandle_t double_click_handle,
+    LongPressHandle_t long_press_handle)
 {
     KEY_FSM_Structure fsm;
 
@@ -18,6 +19,10 @@ KEY_FSM_Structure KEY_SFM_Init(
     fsm.press_count = 0;
     fsm.double_click_start_tick = 0;
     fsm.double_click_handle = double_click_handle;
+
+    // 长按附加
+    fsm.press_hold_start_tick = 0;
+    fsm.long_press_handle = long_press_handle;
 
     return fsm;
 }
@@ -61,12 +66,9 @@ void KEY_FSM_Run(KEY_FSM_Structure* fsm, uint32_t tick)
         // 按下
         case(KEY_FSM_STATE_PRESS):
         {
-            // 等待松开
-            if(fsm->get_state(fsm->key) == KEY_STATE_Release)
-            {
-                fsm->last_tick = tick;                          // 记录松开时间
-                fsm->state = KEY_FSM_STATE_RELEASE_DEBOUNCE;    // 松开消抖
-            }
+            fsm->press_hold_start_tick = tick;   // 记录按下时的时间
+            // 切换到按下检测
+            fsm->state = KEY_FSM_STATE_PRESS_HOLD;
         }
         break;
 
@@ -134,6 +136,51 @@ void KEY_FSM_Run(KEY_FSM_Structure* fsm, uint32_t tick)
             fsm->press_count = 0;
 
             fsm->state = KEY_FSM_STATE_IDLE;    // 回到空闲
+        }
+        break;
+
+        // 按住长按检测
+        case(KEY_FSM_STATE_PRESS_HOLD):
+        {
+            // 等待松开
+            if(fsm->get_state(fsm->key) == KEY_STATE_Release)
+            {
+                // 长按中途松开，且超过双击检测区间
+                if(get_tick_diff(tick, fsm->press_hold_start_tick) > DOUBLE_CLICK_TIMEOUT)
+                {
+                    fsm->state = KEY_FSM_STATE_IDLE;
+                }
+                else
+                {
+                    fsm->last_tick = tick;                          // 记录松开时间
+                    fsm->state = KEY_FSM_STATE_RELEASE_DEBOUNCE;    // 松开消抖
+                }
+            }
+            // 超时
+            else if(get_tick_diff(tick, fsm->press_hold_start_tick) >= LONG_PRESS_TIME)
+            {
+                fsm->press_hold_start_tick = 0;
+                fsm->state = KEY_FSM_STATE_LONG_PRESS;
+            }
+        }
+        break;
+
+        // 触发长按
+        case(KEY_FSM_STATE_LONG_PRESS):
+        {
+            fsm->long_press_handle();
+            fsm->state = KEY_FSM_STATE_WAIT_LONG_PRESS_RELEASE;
+        }
+        break;
+
+        // 等待长按后的松开
+        case(KEY_FSM_STATE_WAIT_LONG_PRESS_RELEASE):
+        {
+            if(fsm->get_state(fsm->key) == KEY_STATE_Release)
+            {
+                fsm->press_count = 0;
+                fsm->state = KEY_FSM_STATE_IDLE;
+            }
         }
         break;
     }
