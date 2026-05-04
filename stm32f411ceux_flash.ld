@@ -102,6 +102,36 @@ SECTIONS
     . = ALIGN(4);
   } >FLASH
 
+  /* 初始化函数表 - 存放所有模块的初始化函数指针 */
+  .module_init : {
+    . = ALIGN(4);
+    
+    /* Level 0 - 最先初始化 */
+    __init_start_level0 = .;
+    KEEP(*(SORT(.init.level0*)))
+    __init_end_level0 = .;
+    
+    /* Level 1 - 基础驱动 */
+    . = ALIGN(4);
+    __init_start_level1 = .;
+    KEEP(*(SORT(.init.level1*)))
+    __init_end_level1 = .;
+    
+    /* Level 2 - 外设驱动 */
+    . = ALIGN(4);
+    __init_start_level2 = .;
+    KEEP(*(SORT(.init.level2*)))
+    __init_end_level2 = .;
+    
+    /* Level 3 - 应用模块 */
+    . = ALIGN(4);
+    __init_start_level3 = .;
+    KEEP(*(SORT(.init.level3*)))
+    __init_end_level3 = .;
+    
+    . = ALIGN(4);
+  } >FLASH
+
   .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >FLASH
   .ARM : {
     __exidx_start = .;

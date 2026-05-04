@@ -54,6 +54,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/APP/src/key/key_fsm.c
 
     ${CMAKE_CURRENT_SOURCE_DIR}/SYSTEM/src/system.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/SYSTEM/src/module_auto_init.c
 )
 
 # Add include paths

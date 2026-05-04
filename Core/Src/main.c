@@ -29,6 +29,7 @@
 #include "usbd_cdc_if.h"
 #include "key.h"
 #include "key_fsm.h"
+#include "module_auto_init.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -112,6 +113,14 @@ void KeyxPressLongTest()
   int len = sprintf(buf,"keyx long\r\n");
   CDC_Transmit_FS(buf,len);
 }
+
+uint8_t test_n = 0;
+static void init_test()
+{
+  test_n = 3;
+  LED_FSM_SetBlinkEvent(&led1_fsm,500,500);
+}
+MODULE_INIT(init_test, 3);
 /* USER CODE END 0 */
 
 /**
@@ -152,8 +161,9 @@ int main(void)
   led1_fsm = LED_FSM_Init(&led1);
   ledx_fsm = LED_FSM_Init(&ledx);
   // 初始设置500ms闪烁
-  LED_FSM_SetBlinkEvent(&led1_fsm,500,500);
+  // LED_FSM_SetBlinkEvent(&led1_fsm,500,500);
   LED_FSM_SetBlinkEvent(&ledx_fsm,500,500);
+  module_auto_init_all();
 
   // 初始化KEY
   key  = Key_Init(key_GPIO_Port,  key_Pin,  KEY_POLARITY_LOW);
