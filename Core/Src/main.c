@@ -63,64 +63,7 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-// 定义LED结构体
-LED_Structure led1;
-LED_Structure ledx;
-// 定义LED状态机结构体
-LED_FSM_Structure led1_fsm;
-LED_FSM_Structure ledx_fsm;
-// 定义按键结构体
-Key_Structure key;
-Key_Structure keyx;
-// 定义按键状态机结构体
-KEY_FSM_Structure key_fsm;
-KEY_FSM_Structure keyx_fsm;
 
-
-void KeyClickTest()
-{
-  uint8_t buf[100];
-  int len = sprintf(buf,"key\r\n");
-  CDC_Transmit_FS(buf,len);
-}
-void KeyxClickTest()
-{
-  uint8_t buf[100];
-  int len = sprintf(buf,"keyx\r\n");
-  CDC_Transmit_FS(buf,len);
-}
-
-void KeyDoubleClickTest()
-{
-  uint8_t buf[100];
-  int len = sprintf(buf,"key double\r\n");
-  CDC_Transmit_FS(buf,len);
-}
-void KeyxDoubleClickTest()
-{
-  uint8_t buf[100];
-  int len = sprintf(buf,"keyx double\r\n");
-  CDC_Transmit_FS(buf,len);
-}
-
-void KeyPressLongTest()
-{
-  uint8_t buf[100];
-  int len = sprintf(buf,"key long\r\n");
-  CDC_Transmit_FS(buf,len);
-}
-void KeyxPressLongTest()
-{
-  uint8_t buf[100];
-  int len = sprintf(buf,"keyx long\r\n");
-  CDC_Transmit_FS(buf,len);
-}
-
-static void init_test()
-{
-  
-}
-MODULE_INIT(init_test, 3);
 /* USER CODE END 0 */
 
 /**
@@ -154,41 +97,8 @@ int main(void)
   MX_GPIO_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
-  // 初始化malloc
-  mallco_dev.init(SRAMIN);
-  // 初始化LED
-  led1 = LED_Init(led_GPIO_Port,  led_Pin,  LED_POLARITY_LOW);
-  ledx = LED_Init(ledx_GPIO_Port, ledx_Pin, LED_POLARITY_LOW);
-  // 初始化LED状态机
-  led1_fsm = LED_FSM_Init(&led1);
-  ledx_fsm = LED_FSM_Init(&ledx);
-  // 初始设置500ms闪烁
-  LED_FSM_SetBlinkEvent(&led1_fsm,500,500);
-  LED_FSM_SetBlinkEvent(&ledx_fsm,500,500);
-  module_auto_init_all();
-
-  // 初始化KEY
-  key  = Key_Init(key_GPIO_Port,  key_Pin,  KEY_POLARITY_LOW);
-  keyx = Key_Init(keyx_GPIO_Port, keyx_Pin, KEY_POLARITY_LOW);
-  // 初始化按键状态机
-  key_fsm  = KEY_FSM_Init(&key,   KeyClickTest
-#ifdef DOUBLE_CLICK_ENABLE
-    ,KeyDoubleClickTest
-#endif
-#ifdef LONG_PRESS_ENABLE
-    ,KeyPressLongTest
-#endif
-  );
-
-  keyx_fsm  = KEY_FSM_Init(&keyx,   KeyxClickTest
-#ifdef DOUBLE_CLICK_ENABLE
-    ,KeyxDoubleClickTest
-#endif
-#ifdef LONG_PRESS_ENABLE
-    ,KeyxPressLongTest
-#endif
-  );
   HAL_Delay(500);
+  module_auto_init_all();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -200,25 +110,8 @@ int main(void)
     /* USER CODE BEGIN 3 */
     // 获取系统计数器
     uint32_t tick = HAL_GetTick();
-
-    uint8_t *p = NULL;
     
-    static uint32_t i=0;
-    if(i++>=50000)
-    {
-      i=0;
-      
-      p = mymalloc(SRAMIN,1 * 1024);
-      strcpy(p, "123");
-
-      debug_printf("abc %p\r\n",p);
-      debug_info("%s\r\n", p);
-      debug_warn("abc\r\n");
-      debug_error("abc\r\n");
-
-      myfree(SRAMIN, p);
-    }
-    
+    // 运行按键状态机
     KEY_FSM_Run(&key_fsm,tick);
     KEY_FSM_Run(&keyx_fsm,tick);
 

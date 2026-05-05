@@ -1,6 +1,21 @@
 #include "led_fsm.h"
 #include "system.h"
+#include "module_auto_init.h"
 
+// 定义LED状态机结构体
+LED_FSM_Structure led1_fsm;
+LED_FSM_Structure ledx_fsm;
+void __led_fsm_init()
+{
+  // 初始化LED状态机
+  led1_fsm = LED_FSM_Init(&led1);
+  ledx_fsm = LED_FSM_Init(&ledx);
+
+  // 初始设置500ms闪烁
+  LED_FSM_SetBlinkEvent(&led1_fsm,500,500);
+  LED_FSM_SetBlinkEvent(&ledx_fsm,500,500);
+}
+MODULE_INIT(__led_fsm_init, 3);
 
 /*LED状态机初始化*/
 LED_FSM_Structure LED_FSM_Init(LED_Structure* led_struct)

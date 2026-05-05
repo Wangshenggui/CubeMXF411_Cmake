@@ -1,5 +1,5 @@
 #include "malloc.h"	    
-
+#include "module_auto_init.h"
 
 
 //内存池(32字节对齐)
@@ -48,7 +48,8 @@ void my_mem_init(uint8_t memx)
     mymemset(mallco_dev.memmap[memx], 0,memtblsize[memx]*2);//内存状态表数据清零  
 	mymemset(mallco_dev.membase[memx], 0,memsize[memx]);	//内存池所有数据清零  
 	mallco_dev.memrdy[memx]=1;								//内存管理初始化OK  
-}  
+}
+MODULE_INIT(my_mem_init, 2);
 //获取内存使用率
 //memx:所属内存块
 //返回值:使用率(0~100)

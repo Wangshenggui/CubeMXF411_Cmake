@@ -28,6 +28,9 @@ typedef struct
     uint16_t GPIO_Pin;          // KEY引脚
     KEY_POLARITY polarity;      // KEY极性
 } Key_Structure;
+// 定义按键结构体
+extern Key_Structure key;
+extern Key_Structure keyx;
 
 /*key初始化*/
 Key_Structure Key_Init(GPIO_TypeDef* gpio, uint16_t pin, KEY_POLARITY polarity);

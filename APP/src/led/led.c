@@ -1,5 +1,16 @@
 #include "led.h"
+#include "module_auto_init.h"
 
+// 定义LED结构体
+LED_Structure led1;
+LED_Structure ledx;
+void __led_init()
+{
+    // 初始化LED
+  led1 = LED_Init(led_GPIO_Port,  led_Pin,  LED_POLARITY_LOW);
+  ledx = LED_Init(ledx_GPIO_Port, ledx_Pin, LED_POLARITY_LOW);
+}
+MODULE_INIT(__led_init, 2);
 
 /*初始化LED*/
 LED_Structure LED_Init(GPIO_TypeDef* gpio, uint16_t pin, LED_POLARITY polarity)

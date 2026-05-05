@@ -1,3 +1,4 @@
+/*段收集自动初始化*/
 #ifndef MODULE_AUTO_INIT_H
 #define MODULE_AUTO_INIT_H
 
