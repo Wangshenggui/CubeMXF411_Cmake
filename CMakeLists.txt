@@ -55,6 +55,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
 
     ${CMAKE_CURRENT_SOURCE_DIR}/SYSTEM/src/system.c
     ${CMAKE_CURRENT_SOURCE_DIR}/SYSTEM/src/module_auto_init.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/SYSTEM/src/malloc.c
 )
 
 # Add include paths

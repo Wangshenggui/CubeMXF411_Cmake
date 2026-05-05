@@ -30,6 +30,8 @@
 #include "key.h"
 #include "key_fsm.h"
 #include "module_auto_init.h"
+#include "malloc.h"
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -114,11 +116,9 @@ void KeyxPressLongTest()
   CDC_Transmit_FS(buf,len);
 }
 
-uint8_t test_n = 0;
 static void init_test()
 {
-  test_n = 3;
-  LED_FSM_SetBlinkEvent(&led1_fsm,500,500);
+  
 }
 MODULE_INIT(init_test, 3);
 /* USER CODE END 0 */
@@ -154,6 +154,8 @@ int main(void)
   MX_GPIO_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
+  // 初始化malloc
+  mallco_dev.init(SRAMIN);
   // 初始化LED
   led1 = LED_Init(led_GPIO_Port,  led_Pin,  LED_POLARITY_LOW);
   ledx = LED_Init(ledx_GPIO_Port, ledx_Pin, LED_POLARITY_LOW);
@@ -161,7 +163,7 @@ int main(void)
   led1_fsm = LED_FSM_Init(&led1);
   ledx_fsm = LED_FSM_Init(&ledx);
   // 初始设置500ms闪烁
-  // LED_FSM_SetBlinkEvent(&led1_fsm,500,500);
+  LED_FSM_SetBlinkEvent(&led1_fsm,500,500);
   LED_FSM_SetBlinkEvent(&ledx_fsm,500,500);
   module_auto_init_all();
 
@@ -186,6 +188,7 @@ int main(void)
     ,KeyxPressLongTest
 #endif
   );
+  HAL_Delay(500);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -198,6 +201,24 @@ int main(void)
     // 获取系统计数器
     uint32_t tick = HAL_GetTick();
 
+    uint8_t *p = NULL;
+    
+    static uint32_t i=0;
+    if(i++>=50000)
+    {
+      i=0;
+      
+      p = mymalloc(SRAMIN,1 * 1024);
+      strcpy(p, "123");
+
+      debug_printf("abc %p\r\n",p);
+      debug_info("%s\r\n", p);
+      debug_warn("abc\r\n");
+      debug_error("abc\r\n");
+
+      myfree(SRAMIN, p);
+    }
+    
     KEY_FSM_Run(&key_fsm,tick);
     KEY_FSM_Run(&keyx_fsm,tick);
 

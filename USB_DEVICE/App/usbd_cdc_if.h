@@ -51,7 +51,7 @@
 #define APP_RX_DATA_SIZE  2048
 #define APP_TX_DATA_SIZE  2048
 /* USER CODE BEGIN EXPORTED_DEFINES */
-
+extern volatile uint8_t cdc_tx_complete;
 /* USER CODE END EXPORTED_DEFINES */
 
 /**
