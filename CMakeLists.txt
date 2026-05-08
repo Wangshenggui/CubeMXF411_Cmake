@@ -45,25 +45,29 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined library search paths
 )
 
+file(GLOB USER_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/USER/APP/src/*.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/USER/BSP/src/*.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/USER/Utils/src/*.c
+)
+file(GLOB SYSTEM_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/SYSTEM/src/*.c
+)
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
-    ${CMAKE_CURRENT_SOURCE_DIR}/APP/src/led/led.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/APP/src/led/led_fsm.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/APP/src/key/key.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/APP/src/key/key_fsm.c
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/SYSTEM/src/system.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/SYSTEM/src/module_auto_init.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/SYSTEM/src/malloc.c
+    ${USER_SOURCES}
+    ${SYSTEM_SOURCES}
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
-    ${CMAKE_CURRENT_SOURCE_DIR}/APP/inc
-    ${CMAKE_CURRENT_SOURCE_DIR}/APP/inc/led
-    ${CMAKE_CURRENT_SOURCE_DIR}/APP/inc/key
+    ${CMAKE_CURRENT_SOURCE_DIR}/USER/APP/inc
+    
+    ${CMAKE_CURRENT_SOURCE_DIR}/USER/BSP/inc
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/USER/Utils/inc
 
     ${CMAKE_CURRENT_SOURCE_DIR}/SYSTEM/inc
 )

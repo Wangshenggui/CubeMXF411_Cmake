@@ -30,7 +30,8 @@
 #include "usbd_cdc.h"
 
 /* USER CODE BEGIN INCLUDE */
-
+#include "ring_buffer.h"
+#include <stdbool.h>
 /* USER CODE END INCLUDE */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
@@ -51,7 +52,8 @@
 #define APP_RX_DATA_SIZE  2048
 #define APP_TX_DATA_SIZE  2048
 /* USER CODE BEGIN EXPORTED_DEFINES */
-extern volatile uint8_t cdc_tx_complete;
+extern volatile bool cdc_tx_complete;
+extern RingBuffer_Structure USB_RxRingBufferStruct;
 /* USER CODE END EXPORTED_DEFINES */
 
 /**

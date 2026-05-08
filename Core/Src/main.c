@@ -110,6 +110,25 @@ int main(void)
     /* USER CODE BEGIN 3 */
     // 获取系统计数器
     uint32_t tick = HAL_GetTick();
+
+    // 环形缓冲区测试
+    uint8_t *test_buf;
+    uint16_t size = RingBuff_GetSize(&USB_RxRingBufferStruct);
+    if (size > 0)
+    {
+      test_buf = mymalloc(SRAMIN, size + 3);
+      if (test_buf != NULL)
+      {
+        uint16_t len = RingBuff_ReadBytes(&USB_RxRingBufferStruct, test_buf, size);
+        test_buf[len] = '\r';
+        test_buf[len+1] = '\n';
+        test_buf[len+2] = '\0';
+        debug_warn("%s", test_buf);
+
+        myfree(SRAMIN, test_buf);
+      }
+    }
+    
     
     // 运行按键状态机
     KEY_FSM_Run(&key_fsm,tick);

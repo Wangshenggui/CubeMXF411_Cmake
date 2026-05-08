@@ -22,7 +22,7 @@
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN INCLUDE */
-
+#include "module_auto_init.h"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -31,7 +31,16 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-volatile uint8_t cdc_tx_complete = 1;
+volatile bool cdc_tx_complete = true;
+
+RingBuffer_Structure USB_RxRingBufferStruct = {0};
+
+// 实例化USB接收缓冲区
+void __usb_ringbuff_init()
+{
+  RingBuff_Init(&USB_RxRingBufferStruct);
+}
+MODULE_INIT(__usb_ringbuff_init, 3);
 /* USER CODE END PV */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
@@ -261,6 +270,8 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
+  RingBuff_WriteBytes(&USB_RxRingBufferStruct, Buf, *Len);
+
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
   return (USBD_OK);
@@ -312,7 +323,7 @@ static int8_t CDC_TransmitCplt_FS(uint8_t *Buf, uint32_t *Len, uint8_t epnum)
   UNUSED(Len);
   UNUSED(epnum);
 
-  cdc_tx_complete = 1;
+  cdc_tx_complete = true;
   /* USER CODE END 13 */
   return result;
 }

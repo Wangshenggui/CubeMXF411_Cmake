@@ -4,18 +4,29 @@
 #include "main.h"
 #include <stdio.h>
 
-#define DEBUG_ENABLE 1
+// 调试使能
+#define DEBUG_ENABLE
+// Ansi彩色输出
+#define DEBUG_COLOR_ENABLE
 
-#define COLOR_RED     "\033[31m"
-#define COLOR_GREEN   "\033[32m"
-#define COLOR_YELLOW  "\033[33m"
-#define COLOR_CYAN    "\033[36m"
-#define COLOR_RESET   "\033[0m"
-
+#ifdef DEBUG_COLOR_ENABLE
+    #define COLOR_RED     "\033[31m"
+    #define COLOR_GREEN   "\033[32m"
+    #define COLOR_YELLOW  "\033[33m"
+    #define COLOR_CYAN    "\033[36m"
+    #define COLOR_RESET   "\033[0m"
+#else
+    #define COLOR_RED     ""
+    #define COLOR_GREEN   ""
+    #define COLOR_YELLOW  ""
+    #define COLOR_CYAN    ""
+    #define COLOR_RESET   ""
+#endif
 
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : \
                       strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
-#if DEBUG_ENABLE
+
+#ifdef DEBUG_ENABLE
     /* 普通调试输出 */
     #define debug_printf(fmt, ...) \
     do { \
