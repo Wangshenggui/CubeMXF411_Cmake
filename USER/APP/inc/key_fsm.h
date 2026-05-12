@@ -74,7 +74,6 @@ typedef struct
 } KEY_FSM_Structure;
 // 定义按键状态机结构体
 extern KEY_FSM_Structure key_fsm;
-extern KEY_FSM_Structure keyx_fsm;
 
 /*按键状态机初始化*/
 KEY_FSM_Structure KEY_FSM_Init(

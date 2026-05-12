@@ -18,6 +18,8 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "dma.h"
+#include "spi.h"
 #include "usb_device.h"
 #include "gpio.h"
 
@@ -32,6 +34,7 @@
 #include "module_auto_init.h"
 #include "malloc.h"
 #include <stdio.h>
+#include "spi_lcd.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -95,10 +98,17 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_USB_DEVICE_Init();
+  MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
   HAL_Delay(500);
   module_auto_init_all();
+
+  Lcd_Init();
+	
+  u16 colors[] = {WHITE, BLACK, BLUE, RED, GREEN, YELLOW, CYAN, MAGENTA};
+  u8 color_count = sizeof(colors) / sizeof(colors[0]);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -111,32 +121,14 @@ int main(void)
     // 获取系统计数器
     uint32_t tick = HAL_GetTick();
 
-    // 环形缓冲区测试
-    uint8_t *test_buf;
-    uint16_t size = RingBuff_GetSize(&USB_RxRingBufferStruct);
-    if (size > 0)
-    {
-      test_buf = mymalloc(SRAMIN, size + 3);
-      if (test_buf != NULL)
-      {
-        uint16_t len = RingBuff_ReadBytes(&USB_RxRingBufferStruct, test_buf, size);
-        test_buf[len] = '\r';
-        test_buf[len+1] = '\n';
-        test_buf[len+2] = '\0';
-        debug_warn("%s", test_buf);
+    static uint8_t i = 0;
+    LCD_Clear(colors[i++ % color_count]);
 
-        myfree(SRAMIN, test_buf);
-      }
-    }
-    
-    
     // 运行按键状态机
     KEY_FSM_Run(&key_fsm,tick);
-    KEY_FSM_Run(&keyx_fsm,tick);
 
     // 运行LED状态机
     LED_FSM_Run(&led1_fsm, tick);
-    LED_FSM_Run(&ledx_fsm, tick);
   }
   /* USER CODE END 3 */
 }

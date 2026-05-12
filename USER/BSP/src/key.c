@@ -3,12 +3,10 @@
 
 // 定义按键结构体
 Key_Structure key;
-Key_Structure keyx;
 void __key_init()
 {
   // 初始化KEY
   key  = Key_Init(key_GPIO_Port,  key_Pin,  KEY_POLARITY_LOW);
-  keyx = Key_Init(keyx_GPIO_Port, keyx_Pin, KEY_POLARITY_LOW);
 }
 MODULE_INIT(__key_init, 2);
 

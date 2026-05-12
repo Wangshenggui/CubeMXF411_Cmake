@@ -3,12 +3,10 @@
 
 // 定义LED结构体
 LED_Structure led1;
-LED_Structure ledx;
 void __led_init()
 {
     // 初始化LED
   led1 = LED_Init(led_GPIO_Port,  led_Pin,  LED_POLARITY_LOW);
-  ledx = LED_Init(ledx_GPIO_Port, ledx_Pin, LED_POLARITY_LOW);
 }
 MODULE_INIT(__led_init, 2);
 

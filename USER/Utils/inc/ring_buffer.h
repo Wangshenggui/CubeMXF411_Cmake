@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define RING_BUFFER_SIZE 4096
+#define RING_BUFFER_SIZE 2048
 typedef struct
 {
     uint8_t buffer[RING_BUFFER_SIZE];

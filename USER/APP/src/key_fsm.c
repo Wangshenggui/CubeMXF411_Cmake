@@ -6,31 +6,19 @@ void KeyClickTest()
 {
   debug_info("Key单击\r\n");
 }
-void KeyxClickTest()
-{
-  debug_info("Keyx单击\r\n");
-}
 
 void KeyDoubleClickTest()
 {
   debug_info("Key双击\r\n");
-}
-void KeyxDoubleClickTest()
-{
-  debug_info("Keyx双击\r\n");
 }
 
 void KeyPressLongTest()
 {
   debug_info("Key长按\r\n");
 }
-void KeyxPressLongTest()
-{
-  debug_info("Keyx长按\r\n");
-}
+
 // 定义按键状态机结构体
 KEY_FSM_Structure key_fsm;
-KEY_FSM_Structure keyx_fsm;
 void __key_fsm_init()
 {
   // 初始化按键状态机
@@ -40,15 +28,6 @@ void __key_fsm_init()
 #endif
 #ifdef LONG_PRESS_ENABLE
     ,KeyPressLongTest
-#endif
-  );
-
-  keyx_fsm  = KEY_FSM_Init(&keyx,   KeyxClickTest
-#ifdef DOUBLE_CLICK_ENABLE
-    ,KeyxDoubleClickTest
-#endif
-#ifdef LONG_PRESS_ENABLE
-    ,KeyxPressLongTest
 #endif
   );
 }
