@@ -35,6 +35,7 @@
 #include "malloc.h"
 #include <stdio.h>
 #include "spi_lcd.h"
+#include "touch.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -106,6 +107,7 @@ int main(void)
   module_auto_init_all();
 
   Lcd_Init();
+  CST816_Init();
 	
   u16 colors[] = {WHITE, BLACK, BLUE, RED, GREEN, YELLOW, CYAN, MAGENTA};
   u8 color_count = sizeof(colors) / sizeof(colors[0]);
@@ -121,8 +123,23 @@ int main(void)
     // 获取系统计数器
     uint32_t tick = HAL_GetTick();
 
-    static uint8_t i = 0;
-    LCD_Clear(colors[i++ % color_count]);
+
+    CST816_Scan();
+    if(TPR_Structure.TouchSta == TP_PRES_DOWN)
+    {
+      // x=TPR_Structure.x[0];
+      // y=TPR_Structure.y[0];
+
+      static uint8_t i = 0;
+      LCD_Clear(colors[i++ % color_count]);
+
+      static uint16_t a = 0;
+      if(a++>=10)
+      {
+        a=0;
+        debug_info("%d-%d\r\n",TPR_Structure.x[0],TPR_Structure.y[0]);
+      }
+    }
 
     // 运行按键状态机
     KEY_FSM_Run(&key_fsm,tick);

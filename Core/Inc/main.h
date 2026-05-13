@@ -69,6 +69,14 @@ void Error_Handler(void);
 #define SPI_LCD_DC_GPIO_Port GPIOA
 #define SPI_LCD_RESET_Pin GPIO_PIN_4
 #define SPI_LCD_RESET_GPIO_Port GPIOA
+#define touch_rst_Pin GPIO_PIN_4
+#define touch_rst_GPIO_Port GPIOB
+#define touch_int_Pin GPIO_PIN_5
+#define touch_int_GPIO_Port GPIOB
+#define touch_iic_scl_Pin GPIO_PIN_6
+#define touch_iic_scl_GPIO_Port GPIOB
+#define touch_iic_sda_Pin GPIO_PIN_7
+#define touch_iic_sda_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
