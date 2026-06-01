@@ -3,6 +3,7 @@
 
 #include "main.h"
 #include <stdio.h>
+#include <string.h>
 
 // 调试使能
 #define DEBUG_ENABLE
