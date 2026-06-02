@@ -1,32 +1,13 @@
 #include "iap.h"
 #include "stmflash.h"
 
-iapfun jump2app; 
-uint16_t iapbuf[1024];   
+iapfun jump2app;
 //appxaddr:应用程序的起始地址
 //appbuf:应用程序CODE.
 //appsize:应用程序大小(字节).
 void iap_write_appbin(uint32_t appxaddr,uint8_t *appbuf,uint32_t appsize)
 {
-	uint16_t t;
-	uint16_t i=0;
-	uint16_t temp;
-	uint32_t fwaddr=appxaddr;//当前写入的地址
-	uint8_t *dfu=appbuf;
-	for(t=0;t<appsize;t+=2)
-	{						    
-		temp=(uint16_t)dfu[1]<<8;
-		temp+=(uint16_t)dfu[0];	  
-		dfu+=2;//偏移2个字节
-		iapbuf[i++]=temp;	    
-		if(i==1024)
-		{
-			i=0;
-			FlashWriteMulti(fwaddr,iapbuf,1024);	
-			fwaddr+=2048;//偏移2048  16=2*8.所以要乘以2.
-		}
-	}
-	if(i)FlashWriteMulti(fwaddr,iapbuf,i);//将最后的一些内容字节写进去.  
+	FlashWriteMulti_Byte(appxaddr, appbuf, appsize);
 }
 
 //跳转到应用程序段
@@ -42,6 +23,7 @@ void iap_load_app(uint32_t appxaddr)
         NVIC->ICPR[i] = 0xFFFFFFFF;
     }
 
+    HAL_RCC_DeInit();   // 恢复RCC时钟
     __DSB();
     __ISB();
     

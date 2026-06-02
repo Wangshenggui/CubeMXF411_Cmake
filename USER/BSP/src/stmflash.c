@@ -128,18 +128,31 @@ uint8_t FlashWriteMulti_Byte(uint32_t StartAddress, uint8_t *pData, uint32_t Num
     uint32_t dataIdx = 0;
     uint32_t wordData;
     HAL_StatusTypeDef status;
+    __disable_irq();  // Flash操作期间禁止中断
     
     // 参数检查
-    if(pData == NULL) return 1;
-    if(StartAddress < 0x08000000 || StartAddress > 0x0807FFFF) return 1;
+    if(pData == NULL) {
+        __enable_irq();
+        return 1;
+    }
+    if(StartAddress < 0x08000000 || StartAddress > 0x0807FFFF) {
+        __enable_irq();
+        return 1;
+    }
     
     uint32_t endAddr = StartAddress + NumToWrite - 1;
-    if(endAddr > 0x0807FFFF) return 1;
+    if(endAddr > 0x0807FFFF) {
+        __enable_irq();
+        return 1;
+    }
     
     // 检查是否需要擦除
     int startSector = GetSectorFromAddress(StartAddress);
     int endSector = GetSectorFromAddress(endAddr);
-    if(startSector < 0 || endSector < 0) return 1;
+    if(startSector < 0 || endSector < 0) {
+        __enable_irq();
+        return 1;
+    }
     
     uint8_t needErase = 0;
     uint32_t checkAddr = StartAddress & ~0x03;
@@ -166,30 +179,48 @@ uint8_t FlashWriteMulti_Byte(uint32_t StartAddress, uint8_t *pData, uint32_t Num
     if(needErase) {
         HAL_FLASH_Unlock();
         
+        // 擦除前先清除所有标志位
+        __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | 
+                              FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR |
+                              FLASH_FLAG_BSY);  // 增加 BSY 标志清除
+        
         for(int sector = startSector; sector <= endSector; sector++) {
-            __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | 
-                                  FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
-            
             FLASH_Erase_Sector(sector, FLASH_VOLTAGE_RANGE_3);
+            
+            // 等待擦除完成
+            while(__HAL_FLASH_GET_FLAG(FLASH_FLAG_BSY)) {
+                // 等待
+            }
             
             if(HAL_FLASH_GetError() != HAL_FLASH_ERROR_NONE) {
                 HAL_FLASH_Lock();
+                __enable_irq();
                 return 1;
             }
         }
         
         HAL_FLASH_Lock();
         
-        // 验证擦除
+        // 验证擦除（注意：这里直接读取Flash可能会慢）
         for(uint32_t addr = checkAddr; addr <= checkEnd; addr += 4) {
             if(*(uint32_t*)addr != 0xFFFFFFFF) {
+                __enable_irq();
                 return 1;
             }
         }
     }
     
+    // 写入前等待Flash空闲
+    while(__HAL_FLASH_GET_FLAG(FLASH_FLAG_BSY)) {
+        // 等待之前的Flash操作完成
+    }
+    
     // 写入数据
     HAL_FLASH_Unlock();
+    
+    // 写入前再次清除标志位
+    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | 
+                          FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
     
     remain = NumToWrite;
     currentAddr = StartAddress;
@@ -209,11 +240,16 @@ uint8_t FlashWriteMulti_Byte(uint32_t StartAddress, uint8_t *pData, uint32_t Num
         
         if(HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, wordAddr, wordData) != HAL_OK) {
             HAL_FLASH_Lock();
+            __enable_irq();
             return 1;
         }
         
+        // 等待编程完成
+        while(__HAL_FLASH_GET_FLAG(FLASH_FLAG_BSY));
+        
         if(*(uint32_t*)wordAddr != wordData) {
             HAL_FLASH_Lock();
+            __enable_irq();
             return 1;
         }
         
@@ -229,11 +265,15 @@ uint8_t FlashWriteMulti_Byte(uint32_t StartAddress, uint8_t *pData, uint32_t Num
         
         if(HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, addr, wordData) != HAL_OK) {
             HAL_FLASH_Lock();
+            __enable_irq();
             return 1;
         }
         
+        while(__HAL_FLASH_GET_FLAG(FLASH_FLAG_BSY));
+        
         if(*(uint32_t*)addr != wordData) {
             HAL_FLASH_Lock();
+            __enable_irq();
             return 1;
         }
         
@@ -252,16 +292,26 @@ uint8_t FlashWriteMulti_Byte(uint32_t StartAddress, uint8_t *pData, uint32_t Num
         
         if(HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, currentAddr, wordData) != HAL_OK) {
             HAL_FLASH_Lock();
+            __enable_irq();
             return 1;
         }
         
+        while(__HAL_FLASH_GET_FLAG(FLASH_FLAG_BSY));
+        
         if(*(uint32_t*)currentAddr != wordData) {
             HAL_FLASH_Lock();
+            __enable_irq();
             return 1;
         }
     }
     
     HAL_FLASH_Lock();
+    
+    // 清除一次标志位，为下次操作做准备
+    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | 
+                          FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
+    
+    __enable_irq();  // 恢复中断
     
     return 0;
 }
