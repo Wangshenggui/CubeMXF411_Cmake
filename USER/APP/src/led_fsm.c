@@ -12,7 +12,7 @@ void __led_fsm_init()
   // 初始设置500ms闪烁
   LED_FSM_SetBlinkEvent(&led1_fsm,500,500);
 }
-MODULE_INIT(__led_fsm_init, 3);
+MODULE_INIT(__led_fsm_init, INIT_LEVEL_APP);
 
 /*LED状态机初始化*/
 LED_FSM_Structure LED_FSM_Init(LED_Structure* led_struct)

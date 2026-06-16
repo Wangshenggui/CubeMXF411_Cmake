@@ -8,7 +8,7 @@ void __key_init()
   // 初始化KEY
   key  = Key_Init(key_GPIO_Port,  key_Pin,  KEY_POLARITY_LOW);
 }
-MODULE_INIT(__key_init, 2);
+MODULE_INIT(__key_init, INIT_LEVEL_BSP);
 
 
 /*key初始化*/

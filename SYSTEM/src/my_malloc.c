@@ -1,4 +1,4 @@
-#include "malloc.h"	    
+#include "my_malloc.h"	    
 #include "module_auto_init.h"
 
 
@@ -49,7 +49,11 @@ void my_mem_init(uint8_t memx)
 	mymemset(mallco_dev.membase[memx], 0,memsize[memx]);	//内存池所有数据清零  
 	mallco_dev.memrdy[memx]=1;								//内存管理初始化OK  
 }
-MODULE_INIT(my_mem_init, 2);
+void __my_mem_init()
+{
+    my_mem_init(SRAMIN);
+}
+MODULE_INIT(__my_mem_init, INIT_LEVEL_MID);
 //获取内存使用率
 //memx:所属内存块
 //返回值:使用率(0~100)

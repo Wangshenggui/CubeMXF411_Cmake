@@ -53,6 +53,7 @@
 #define APP_TX_DATA_SIZE  2048
 /* USER CODE BEGIN EXPORTED_DEFINES */
 extern volatile bool cdc_tx_complete;
+extern RingBuffer_Structure usbRingBuff;
 /* USER CODE END EXPORTED_DEFINES */
 
 /**

@@ -23,6 +23,7 @@
 
 /* USER CODE BEGIN INCLUDE */
 #include "module_auto_init.h"
+#include "ring_buffer.h"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -32,6 +33,13 @@
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 volatile bool cdc_tx_complete = true;
+
+RingBuffer_Structure usbRingBuff;
+void __usb_ring_init()
+{
+    RingBuff_Init(&usbRingBuff);
+}
+MODULE_INIT(__usb_ring_init, INIT_LEVEL_MID);
 /* USER CODE END PV */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
@@ -261,6 +269,9 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
+  // 写入环形缓冲区
+  RingBuff_WriteBytes(&usbRingBuff, Buf, *Len);
+
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
   return (USBD_OK);

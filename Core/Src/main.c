@@ -38,6 +38,7 @@
 #include "touch.h"
 #include "stmflash.h"
 #include "iap.h"
+#include "Ymodem.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -125,6 +126,21 @@ int main(void)
 
     // 运行LED状态机
     LED_FSM_Run(&led1_fsm, tick);
+
+    // YMODEM解析
+    uint16_t size = RingBuff_GetSize(&usbRingBuff);
+    if (size == 133 || size == 1)
+    {
+      uint8_t data[133];
+      volatile uint16_t len = RingBuff_ReadBytes(&usbRingBuff, data, size);
+
+      if(HAL_GetTick() % 2 == 0 && data[0] != 0)
+      {
+        // data[67] = 0x44;
+      }
+
+      YMODEM_Parse(&ymodem_fsm, data, &len);
+    }
   }
   /* USER CODE END 3 */
 }

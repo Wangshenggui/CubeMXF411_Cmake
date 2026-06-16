@@ -9,9 +9,9 @@
 typedef struct
 {
     uint8_t buffer[RING_BUFFER_SIZE];
-    uint16_t head;
-    uint16_t tail;
-    uint16_t size;
+    volatile uint16_t head;
+    volatile uint16_t tail;
+    volatile uint16_t size;
 }
 RingBuffer_Structure;
 

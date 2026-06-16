@@ -1,23 +1,24 @@
 #include "key_fsm.h"
 #include "module_auto_init.h"
 #include "iap.h"
+#include "Ymodem.h"
 
-extern const unsigned char firmware_bin[];
-extern const unsigned int firmware_bin_len;
 
 void KeyClickTest()
 {
-    
+    YMODEM_SendByte(YMODEM_C);
 }
 
 void KeyDoubleClickTest()
 {
-  iap_write_appbin(FLASH_APP1_ADDR, firmware_bin, firmware_bin_len);
+    YMODEM_SendByte(YMODEM_NAK);
 }
 
 void KeyPressLongTest()
 {
-  iap_load_app(FLASH_APP1_ADDR);
+//   iap_load_app(FLASH_APP1_ADDR);
+    YMODEM_SendByte(YMODEM_CAN);
+    YMODEM_SendByte(YMODEM_CAN);
 }
 
 // 定义按键状态机结构体
@@ -34,7 +35,7 @@ void __key_fsm_init()
 #endif
   );
 }
-MODULE_INIT(__key_fsm_init, 3);
+MODULE_INIT(__key_fsm_init, INIT_LEVEL_APP);
 
 /***************************************************************************/
 /***************************************************************************/

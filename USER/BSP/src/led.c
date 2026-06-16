@@ -8,7 +8,7 @@ void __led_init()
     // 初始化LED
   led1 = LED_Init(led_GPIO_Port,  led_Pin,  LED_POLARITY_LOW);
 }
-MODULE_INIT(__led_init, 2);
+MODULE_INIT(__led_init, INIT_LEVEL_BSP);
 
 /*初始化LED*/
 LED_Structure LED_Init(GPIO_TypeDef* gpio, uint16_t pin, LED_POLARITY polarity)
